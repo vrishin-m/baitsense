@@ -24,17 +24,16 @@ def extract_text_from_image(image_path):
     extracted_texts = [text for _, text, _ in results]
     return ' '.join(extracted_texts)
 
-def analyze(results):
-    score =0
-    return nlp.predict_examples(examples=[results])
 
 
-if __name__ == '__main__':
-    # Example usage
-    image_path = r"C:\Users\mahad\Downloads\ali_a.png"
+
+
+
+def ocr_score(image_path):
     results = extract_text_from_image(image_path)
-    print(results)
-    print(analyze(results))
+    return  nlp.predict_examples(examples=[results])
+
+
 
 
 
