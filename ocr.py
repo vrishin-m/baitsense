@@ -10,15 +10,7 @@ def get_reader():
     return getattr(sys.modules[__name__], 'reader')
 
 def extract_text_from_image(image_path):
-    """
-    Extract text from an image using EasyOCR.
-
-    Args:
-        image_path (str): Path to the image file.
-
-    Returns:
-        str: The extracted text.
-    """
+    
     reader = get_reader()
     results = reader.readtext(image_path)
     extracted_texts = [text for _, text, _ in results]
