@@ -9,51 +9,59 @@ window.addEventListener('yt-navigate-finish', () => {
         initiateAIScript();
     }
 });
+let lastProcessedId = "";
 
 async function initiateAIScript() {
-    // Wait for the title element to load (YouTube is slow)
+    // 1. Get the CURRENT Video ID from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentVideoId = urlParams.get('v');
+
+    // 2. If we already processed this ID, stop (prevents double triggers)
+    if (!currentVideoId || currentVideoId === lastProcessedId) return;
+
+    // 3. Wait for YouTube to update the Title to match the new video
+    // We poll the DOM until the title is actually available
     let titleElement = null;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) { // Try for 10 seconds
         titleElement = document.querySelector('h1.ytd-watch-metadata yt-formatted-string');
-        if (titleElement && titleElement.innerText.trim() !== "") break;
+        
+        // Ensure the element exists AND isn't empty
+        if (titleElement && titleElement.innerText.trim().length > 0) {
+            break; 
+        }
         await new Promise(r => setTimeout(r, 500));
     }
 
-    if (!titleElement) return;
+    if (titleElement) {
+        lastProcessedId = currentVideoId; // Update our tracker
+        const videoTitle = titleElement.innerText;
+        const thumbnailUrl = `https://img.youtube.com/vi/${currentVideoId}/maxresdefault.jpg`;
 
-    const videoId = new URLSearchParams(window.location.search).get('v');
-    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-    const videoTitle = titleElement.innerText;
-
-    // Show initial "Processing" popup
-    renderPopup("Detecting clickbait...", "Sending data to Python server...", "loading");
-
-    try {
-        const response = await fetch('http://127.0.0.1:8000/process_youtube', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                title: videoTitle,
-                thumbnail_url: thumbnailUrl
-            })
-        });
-
-        if (!response.ok) throw new Error("Server Error");
-
-        const data = await response.json();
+        console.log("Processing NEW video:", videoTitle);
         
-        // Update popup with real output from Python
-        renderPopup("Python Result", data.summary);
+        // Show Loading UI
+        renderPopup("AI analyzing...", "Syncing with Python...", "loading");
 
-    } catch (error) {
-        renderPopup("Connection Error", "Is your FastAPI server running at 127.0.0.1:8000?", "error");
-        console.error("Extension Error:", error);
+        // 4. Send to Python
+        try {
+            const response = await fetch('http://127.0.0.1:8000/process_youtube', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: videoTitle,
+                    thumbnail_url: thumbnailUrl
+                })
+            });
+            const data = await response.json();
+            renderPopup("AI Result", data.summary, "success");
+        } catch (error) {
+            renderPopup("Error", "Check Python Terminal", "error");
+        }
     }
 }
 
-/**
- * UI Function: Creates and updates the floating popup
- */
+// Listen for navigation
+window.addEventListener('yt-navigate-finish', initiateAIScript);
 function renderPopup(title, message, status) {
     let popup = document.getElementById('py-ai-popup');
     
