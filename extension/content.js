@@ -1,9 +1,3 @@
-/**
- * content.js
- * Logic: Scrapes YouTube data and communicates with FastAPI
- */
-
-// 1. Listen for YouTube's internal navigation event
 window.addEventListener('yt-navigate-finish', () => {
     if (window.location.pathname === '/watch') {
         initiateAIScript();
@@ -12,20 +6,19 @@ window.addEventListener('yt-navigate-finish', () => {
 let lastProcessedId = "";
 
 async function initiateAIScript() {
-    // 1. Get the CURRENT Video ID from the URL
+  
     const urlParams = new URLSearchParams(window.location.search);
     const currentVideoId = urlParams.get('v');
 
-    // 2. If we already processed this ID, stop (prevents double triggers)
+   
     if (!currentVideoId || currentVideoId === lastProcessedId) return;
 
-    // 3. Wait for YouTube to update the Title to match the new video
-    // We poll the DOM until the title is actually available
+    
     let titleElement = null;
-    for (let i = 0; i < 20; i++) { // Try for 10 seconds
+    for (let i = 0; i < 20; i++) { 
         titleElement = document.querySelector('h1.ytd-watch-metadata yt-formatted-string');
         
-        // Ensure the element exists AND isn't empty
+       
         if (titleElement && titleElement.innerText.trim().length > 0) {
             break; 
         }
@@ -33,16 +26,16 @@ async function initiateAIScript() {
     }
 
     if (titleElement) {
-        lastProcessedId = currentVideoId; // Update our tracker
+        lastProcessedId = currentVideoId; 
         const videoTitle = titleElement.innerText;
         const thumbnailUrl = `https://img.youtube.com/vi/${currentVideoId}/maxresdefault.jpg`;
 
         console.log("Processing NEW video:", videoTitle);
         
-        // Show Loading UI
+        
         renderPopup("AI analyzing...", "Syncing with Python...", "loading");
 
-        // 4. Send to Python
+        
         try {
             const response = await fetch('http://127.0.0.1:8000/process_youtube', {
                 method: 'POST',
@@ -60,7 +53,7 @@ async function initiateAIScript() {
     }
 }
 
-// Listen for navigation
+
 window.addEventListener('yt-navigate-finish', initiateAIScript);
 function renderPopup(title, message, status) {
     let popup = document.getElementById('py-ai-popup');
@@ -71,7 +64,7 @@ function renderPopup(title, message, status) {
         document.body.appendChild(popup);
     }
 
-    // Dynamic Styling
+   
     const statusColors = {
         loading: "#3ea6ff",
         success: "#2ecc71",
