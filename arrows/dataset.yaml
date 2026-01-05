@@ -1,6 +1,6 @@
-path: C:\Users\mahad\Desktop\Vrishin's Office\python\baitsense-v2\arrows
-train: C:\Users\mahad\Desktop\Vrishin's Office\python\baitsense-v2\arrows\training\images
-val: C:\Users\mahad\Desktop\Vrishin's Office\python\baitsense-v2\arrows\testing\images
+path: 
+train: 
+val: 
 
 # Classes
 nc: 1                   # number of classes

@@ -10,8 +10,8 @@ from sklearn.metrics import classification_report, accuracy_score
 import torch
 torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# --- Configuration ---
-FILE_PATH = r"C:\Users\mahad\Downloads\clickbait_data.csv"
+
+FILE_PATH = r"REPLACE THIS STRING WITH THE PATH TO CLICKBAIT.CSV"
 SBERT_MODEL_NAME = 'all-MiniLM-L6-v2'
 MODEL_DIR = Path(__file__).parent / "modelsnew"
 MODEL_DIR.mkdir(parents=True, exist_ok=True)

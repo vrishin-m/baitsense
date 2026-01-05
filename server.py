@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#SETUP DATA FOLDER
+
 BASE_DIR = Path(__file__).resolve().parent
 SAVE_FOLDER = BASE_DIR / "thumbnails"
 SAVE_FOLDER.mkdir(exist_ok=True)
@@ -26,11 +26,11 @@ class YTData(BaseModel):
     title: str
     thumbnail_url: str
 
-#THE ENDPOINT
+
 @app.post("/process_youtube")
 async def handle_youtube_request(data: YTData):
     try:
-        # Save the image
+        
         video_id = data.thumbnail_url.split('/vi/')[1].split('/')[0]
         filepath = SAVE_FOLDER / f"{video_id}.jpg"
         
